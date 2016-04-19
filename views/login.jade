@@ -1,0 +1,14 @@
+extends register
+
+block content
+	if message !== ''
+		p(class="alert alert-danger")= message
+
+	form(method="post" action="/auth" class="form")
+		span(class="span_input") Username
+		input(type="text" name="username" placeholder="enter username" class="form-control")
+		br
+		span(class="span_input") Password
+		input(type="password" name="password" placeholder="enter password" class="form-control")
+		br
+		button(class="btn btn-primary") Login

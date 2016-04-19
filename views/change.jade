@@ -1,0 +1,20 @@
+extends layout
+
+block content
+	p
+		#user
+		h4 Here you can change your account dates
+		form(method="post", action="http://rtyertye.com/change")
+			span(class="span_input", style="margin-right:6px") firstname
+			input(type="text" name="firstname" value=user.firstname class="form-input")
+			br
+			
+			span(class="span_input", style="margin:5px 11px 0 0;display:inline-block") lastname: 
+			input(type="text" name="lastname" value=user.lastname class="form-input")
+			br
+			
+			span(class="span_input", style="margin:5px 5px 0 0;display:inline-block") current username #{user.username} |new 
+			input(type="text" name="username" class="form-input")
+			br
+			
+			button(class="btn btn-primary") change
