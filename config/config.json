@@ -1,0 +1,49 @@
+{
+	"development": {
+		"mysql":{
+			"mysqlConnectionString": "mysql://root:usbw@rtyertye.com/post",
+			"host": "rtyertye.com",
+			"user": "root",
+			"password": "usbw",
+			"port": "3307",
+			"database": "post"
+		},
+		
+	    "app": {
+        "host": "localhost",
+        "port": 80,
+        "schema": "http",
+        "url": "http://rtyertye.com"
+	    },
+	    
+	    "session": {
+	        "secret": "it:demo:secret",
+	        "key": "sid",
+	        "cookie": {
+	            "path": "/",
+	            "httpOnly": true,
+	            "maxAge": null
+	        }
+	    },
+
+	    "memcached": {
+	        "hosts": ["127.0.0.1:11211"],
+	        "prefix": "it:demo:023:"
+	    },
+
+	    "auth": {
+	        "fb": {
+	            "app_id": 144877245909276,
+	            "secret": "23fdabd8bd81c2147a3ae8274de4e7df"
+	        },
+	        "vk": {
+	            "app_id": 5408775,
+	            "secret": "4qkBikKYtkPsQN8pGNxD"
+	        }
+	    }
+	},
+
+	"production": {
+		
+	}
+}

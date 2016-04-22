@@ -1,0 +1,17 @@
+body {
+  padding: 50px;
+  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+}
+
+a {
+  color: #00B7FF;
+}
+textarea{
+	resize: none;
+}
+.span_input{
+	font-size: 16px;
+}
+.remove_form{
+	display: inline-block;
+}

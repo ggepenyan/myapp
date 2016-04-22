@@ -1,0 +1,23 @@
+extends layout
+
+block content
+	p
+		#user
+		h4 Here you can change your account dates
+		.row
+			.col-md-6
+				form(method="post", action="/change")
+					span(class="span_input", style="margin-right:6px") firstname
+					input(type="text" name="firstname" value=user.firstname required class="form-input")
+					br
+					
+					span(class="span_input", style="margin:5px 11px 0 0;display:inline-block") lastname: 
+					input(type="text" name="lastname" value=user.lastname required class="form-input")
+					br
+					button(class="btn btn-primary") change
+			.col-md-6
+				span Add your profile picture:
+				form(method="post" action="/upload" enctype="multipart/form-data")
+					input(type="file" name="image")
+					button(class="btn btn-primary") Upload
+				br

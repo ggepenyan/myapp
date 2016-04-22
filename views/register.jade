@@ -1,0 +1,18 @@
+extends layout
+
+block content
+	form(method="post" action="/register")
+		span(class="span_input") Firstname
+		input(type="text" name="firstname" placeholder="enter your firstname" class="form-control")
+		br
+		span(class="span_input") Lastname
+		input(type="text" name="lastname" placeholder="enter your lastname" class="form-control")
+		br
+		span(class="span_input") Username
+		input(type="text" name="username" placeholder="enter username" class="form-control")
+		br
+		span(class="span_input") Password
+		input(type="password" name="password" placeholder="enter password" class="form-control")
+		br
+		button(class="btn btn-primary") Register
+	a(href="/") homepage

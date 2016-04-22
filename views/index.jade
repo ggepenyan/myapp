@@ -1,0 +1,41 @@
+extends layout
+
+block content
+	h1= title
+	//- p Welcome to #{title}
+	p
+		#user
+			if user
+				.user-card
+					.user-data
+						if user.password != null
+							- var user_pic = user.picture
+							if user_pic
+								- var length = user_pic.length
+								- var str = user_pic.slice(8, user_pic.length)
+								img(src="#{str}" width="50" height="50")
+						else
+							img(src="#{user.picture}")
+						span -You have logged in
+						br
+						if user.password == null
+							span FbID: #{user.fbid}
+						br
+						span Name: #{user.firstname} #{user.lastname}
+						br
+						span Username/Email: #{user.username}
+						br
+						span profile: ---
+						br
+						div(class="clear")
+						br
+						a(href="/blogpost") blogposts
+						br
+						a(href="/change") change account dates
+				a(href="auth/sign-out", class="sign-out") log out ←
+			else
+				a(href="/register") register Page
+				br
+				a(href="/login") login Page
+				br
+				a(href="/auth/fb") Authenticate with facebook →
