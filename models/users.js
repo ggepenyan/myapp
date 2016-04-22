@@ -25,8 +25,6 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.STRING(50)
 		}
 	});
-
-	sequelize.sync()
-
+	
 	return Users
 }
