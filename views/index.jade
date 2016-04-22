@@ -2,10 +2,8 @@ extends layout
 
 block content
 	h1= title
-	//- p Welcome to #{title}
 	p
 		#user
-<<<<<<< HEAD
 			if user
 				.user-card
 					.user-data
@@ -21,25 +19,12 @@ block content
 						br
 						if user.password == null
 							span FbID: #{user.fbid}
-=======
-			if user && user.new_user==false
-				div(class="user-card")
-					div(class="user-data")
-						<img src="#{user.picture}"> 
-						span -You have logged in
-						br
-						span FbID: #{user.fbid}
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
 						br
 						span Name: #{user.firstname} #{user.lastname}
 						br
 						span Username/Email: #{user.username}
 						br
 						span profile: ---
-<<<<<<< HEAD
-=======
-						//-<a href="#{user.profileUrl}">#{user.profileUrl}</a>
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
 						br
 						div(class="clear")
 						br
@@ -47,16 +32,6 @@ block content
 						br
 						a(href="/change") change account dates
 				a(href="auth/sign-out", class="sign-out") log out ←
-<<<<<<< HEAD
-=======
-			else if user && user.new_user==true
-				p.
-					You have successfully registered 
-					<br>
-					See your account: <a href='/auth/fb'>Here</a>
-					<br>
-					Or go to the homepage: <a href='auth/sign-out'>Homepage</a>
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
 			else
 				a(href="/register") register Page
 				br

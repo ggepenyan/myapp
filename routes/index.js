@@ -1,20 +1,18 @@
-<<<<<<< HEAD
-var express = require('express')
-var router = express.Router()
-var models = require('../models')
-var util = require('util')
+var express = require('express'),
+	router = express.Router(),
+	models = require('../models'),
+	util = require('util'),
 
-var multiparty = require('multiparty')
-var path = require('path')
+	multiparty = require('multiparty'),
+	path = require('path'),
 
-var Promise = require("bluebird")
-var readFile = Promise.promisify(require("fs").readFile)
-var writeFile = Promise.promisify(require("fs").writeFile)
-var rename = Promise.promisify(require("fs").rename)
+	Promise = require("bluebird"),
+	readFile = Promise.promisify(require("fs").readFile),
+	writeFile = Promise.promisify(require("fs").writeFile),
+	rename = Promise.promisify(require("fs").rename);
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-	// console.log('req.ip' + req.ip)
 	if(req.user) {
 		return models.Users.findOne({
 			where: {
@@ -28,27 +26,12 @@ router.get('/', function (req, res, next) {
 			next(error)
 		})
 	} else{
-=======
-var express = require('express');
-var router = express.Router();
-var models = require('../models');
-var util = require('util')
-/* GET home page. */
-router.get('/', function (req, res) {
-	console.log(req.user);
-	if(req.user) {
-		res.render('index',  {
-			user: req.user
-		})
-	}else{
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
 		res.render('index')
 	}
-});
+})
 
 router.get('/register', function(req, res, next) {
 	if (req.user) {
-<<<<<<< HEAD
 		req.flash('error', 'log out please')
 		res.redirect('/')
 	} else{
@@ -89,46 +72,57 @@ router.post("/register", function (req, res, next) {
 				}
 			}).catch(error => {
 				next(error)
-			});
+			})
 		} else {
 			req.flash('error', 'you must fill fields')
 			res.redirect('/register')
 		}
 	}
-});
+})
 
 router.post('/upload', function (req, res, next) {
 	if (!req.user) {
 		res.redirect('/')
 	} else {
-		var form = new multiparty.Form();
+		var form = new multiparty.Form()
 		
 		form.parse(req, function (error, fields, files) {
-			var image = files.image[0]
-			var path_full = './public/images/' + image.originalFilename
-			
-			readFile(image.path).then(result => {
-				
-				return writeFile(path_full, result).then(error => {
-
-					ext = path.extname(image.originalFilename)
+			console.log(files)
+			if (files.image) {
+				if (files.image[0].originalFilename !== '' && files.image[0].size !== 0) {
+					var image = files.image[0]
+					var path_full = './public/images/' + image.originalFilename
 					
-					new_path = './public/images/' + Math.random() + '-' + req.user.username + ext
+					readFile(image.path).then(result => {
+						
+						return writeFile(path_full, result).then(error => {
 
-					return rename(path_full, new_path).then(result => {
-						return models.Users.update(
-							{picture: new_path},
-							{where: {
-								id: req.user.id
-							}
-						}).then(result => {
-							res.redirect('/')
+							ext = path.extname(image.originalFilename)
+							
+							new_path = './public/images/' + Math.random() + '-' + req.user.username + ext
+
+							return rename(path_full, new_path).then(result => {
+								return models.Users.update(
+									{picture: new_path},
+									{where: {
+										id: req.user.id
+									}
+								}).then(result => {
+									res.redirect('/')
+								})
+							})
 						})
+					}).catch(error => {
+						next(error)
 					})
-				})
-			}).catch(error => {
-				next(error)
-			})
+				} else {
+					req.flash('error', 'not correct')
+					res.redirect('/change')
+				}
+			} else {
+				req.flash('error', 'you must fill field')
+				res.redirect('/change')
+			}
 		})
 	}
 })
@@ -172,40 +166,46 @@ router.post('/change', function (req, res, next) {
 			lastname:req.body.lastname
 		}
 
-		if (user_dates.firstname == '' || user_dates.lastname == '') {
-			
-			req.flash('error', 'you must fill fields')
-			res.redirect('/change')
-		} else {
-			return models.Users.findOne({
-				where: {
-					id: req.user.id
-				}
-			}).then(user => {
-				return models.Blogposts.findAll({
-					where: {
-						userid: user.id
-					}
-				}).then(blog_user =>{
-					user.update({
-						firstname: user_dates.firstname || req.user.firstname,
-						lastname: user_dates.lastname || req.user.lastname
-					})
+		if (req.body.firstname && req.body.lastname) {
+			if (user_dates.firstname == '' || user_dates.lastname == '') {
 
-					blog_user.map(function (serial_user) {
-						serial_user.update({
+				req.flash('error', 'you must fill fields')
+				res.redirect('/change')
+
+			} else {
+				return models.Users.findOne({
+					where: {
+						id: req.user.id
+					}
+				}).then(user => {
+					return models.Blogposts.findAll({
+						where: {
+							userid: user.id
+						}
+					}).then(blog_user =>{
+						user.update({
 							firstname: user_dates.firstname || req.user.firstname,
 							lastname: user_dates.lastname || req.user.lastname
 						})
-					})
-					req.flash('info', 'account dates are updated')
-					res.redirect("/")
-				})
 
-			}).catch(error => {
-				console.log(error)
-				next(error);
-			})
+						blog_user.map(function (serial_user) {
+							serial_user.update({
+								firstname: user_dates.firstname || req.user.firstname,
+								lastname: user_dates.lastname || req.user.lastname
+							})
+						})
+						req.flash('info', 'account dates are updated')
+						res.redirect("/")
+					})
+
+				}).catch(error => {
+					console.log(error)
+					next(error)
+				})
+			}
+		} else {
+			req.flash('error', 'you must fill fields')
+			res.redirect('/change')
 		}
 	}
 })
@@ -236,28 +236,39 @@ router.post('/blogpost', function (req, res, next) {
 		req.flash('error', 'please login at first')
 		res.redirect('/')
 	}else {
-		return models.Blogposts.create({
-			firstname: req.user.firstname,
-			lastname: req.user.lastname,
-			username: req.user.username,
-			userid: req.user.id,
-			content: req.body.text
+		if(user_dates.firstname) {
+			if (user_dates.firstname !== '') {
+				return models.Blogposts.create({
+					firstname: req.user.firstname,
+					lastname: req.user.lastname,
+					username: req.user.username,
+					userid: req.user.id,
+					content: req.body.text
 
-		}).then(blogpost => {
-			req.flash('info', 'blogpost added successfully')
-			res.redirect("blogpost")
+				}).then(blogpost => {
+					req.flash('info', 'blogpost added successfully')
+					res.redirect("blogpost")
 
-		}).catch(error => {
-			next(error)
-		})
-	}
+				}).catch(error => {
+					next(error)
+				})
+			} else {
+				req.flash('error', 'you must enter text')
+				res.redirect('/blogpost')
+			}
+		}
+		else {
+			req.flash('error', 'you must enter text')
+			res.redirect('/blogpost')
+		}
+	} 
 })
 
 router.post('/blogpost_remove', function (req, res, next) {
 	if (!req.user) {
 		req.flash('error', 'please login at first')
 		res.redirect('/')
-	}else {
+	} else {
 		return models.Blogposts.destroy({
 			where: {
 				id: req.body.blog_id,
@@ -273,125 +284,3 @@ router.post('/blogpost_remove', function (req, res, next) {
 })
 
 module.exports = router
-=======
-		res.redirect('/')
-	}
-  res.render('register');
-});
-
-router.post("/register", function (req, res) {
-
-	return models.Users.findOrCreate({
-		where:{
-			firstname:req.body.firstname,
-			lastname:req.body.lastname,
-			username:req.body.username,
-			password:req.body.password,
-			new_user: "true"
-		}
-	}).then(function (user) {
-		res.render("register_success");
-	}).catch(function (error) {
-		console.log(error);
-	});
-});
-
-router.get('/login', function(req, res, next) {
-	if (req.user) {
-		res.redirect('/')
-	}
-
-	var messages = req.flash('error')
-	var message = messages.length > 0 ? messages[0] : ''
-	
-	console.log('message: ', message);
-	
-	res.render('login', {
-		message: message
-	});
-});
-
-router.get('/change', function (req, res, next) {
-	if (!req.user) {
-		return res.redirect('/login');
-	}
-
-	return models.Users.findOne({
-		where:{
-			id: req.user.id
-		}
-	}).then(function (user) {
-		user.update({
-			new_user: "false"
-		});
-		res.render('change', {
-			user: user
-		});
-	}).catch(function (error) {
-		console.log(error);
-		next(error);
-	})
-})
-
-router.post('/change', function (req, res) {
-	if (!req.user) {
-		return res.redirect('/login');
-	}
-
-	return models.Users.findOne({
-		where: {
-			id: req.user.id
-		}
-	}).then(function (user) {
-		user.update({
-			firstname: req.body.firstname,
-			lastname: req.body.lastname,
-			username: req.body.username
-		});
-		res.redirect("/");
-
-	}).catch(function (error) {
-		console.log(error);
-		next(error);
-	});
-})
-
-router.get('/blogpost', function (req, res) {
-	if (!req.user) {
-		res.redirect('/');
-	}
-
-	return models.Blogposts.findAll({
-		where:{
-			password: null
-		}
-	}).then(function (blogpost) {
-		res.render("blogposts",{
-			blogpost: blogpost
-		})
-	}).catch(function (error) {
-		console.log(error);
-	});
-})
-
-router.post('/blogpost', function (req, res) {
-	if (req.user) {
-		res.redirect('/')
-	}
-
-	return models.Blogposts.create({
-		firstname: req.user.firstname,
-		lastname: req.user.lastname,
-		username: req.user.username,
-		content: req.body.text
-
-	}).then(function (blogpost) {
-		res.redirect("blogpost")
-
-	}).catch(function (error) {
-		console.log(error);
-	});
-})
-
-module.exports = router;
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676

@@ -1,16 +1,13 @@
-var express = require('express');
-var path = require('path');
-var favicon = require('serve-favicon');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var passport = require('passport');
-var session = require('express-session')
-<<<<<<< HEAD
-var flash = require('express-flash')
-=======
-var flash = require('connect-flash')
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
+var express = require('express'),
+    path = require('path'),
+    favicon = require('serve-favicon'),
+    logger = require('morgan'),
+    cookieParser = require('cookie-parser'),
+    bodyParser = require('body-parser'),
+    passport = require('passport'),
+    session = require('express-session'),
+    flash = require('express-flash');
+
 // var v1 = require('./routes/v1');
 
 // var routes = require('./routes/index');
@@ -71,10 +68,7 @@ if (app.get('env') === 'development') {
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
-<<<<<<< HEAD
   console.log(err.stack)
-=======
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
   res.status(err.status || 500);
   res.render('error', {
     message: err.message,
@@ -82,9 +76,9 @@ app.use(function(err, req, res, next) {
   });
 });
 
-<<<<<<< HEAD
-=======
-app.use('/', require('./routes/index'));
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
+// <<<<<<< HEAD
+// =======
+// app.use('/', require('./routes/index'));
+// >>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
 
 module.exports = app;

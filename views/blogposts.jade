@@ -4,7 +4,6 @@ block content
 	#blogpost
 		if blogpost
 			h3 add new blogpost
-<<<<<<< HEAD
 			form(method="post" action="/blogpost")
 				textarea(name="text")
 				button add
@@ -23,20 +22,6 @@ block content
 		else
 			h3 add new blogpost
 			form(action="/blogpost" method="post")
-=======
-			form(action="http://rtyertye.com/blogpost" method="post")
-				textarea(name="text")
-				button add
-			- for (var i = blogpost.length - 1; i >= 0; i--) {
-				span= blogpost[i].firstname +" "+ blogpost[i].lastname + " writes"
-				p= blogpost[i].content
-				hr
-			-}
-			a(href="/", class="sign-out") account page ←
-		else
-			h3 add new blogpost
-			form(action="http://rtyertye.com/blogpost" method="post")
->>>>>>> 39ce89294490c4df85f44d2cb43411ace1ffd676
 				textarea(name="text")
 				button add
 			a(href="/", class="sign-out") account page ←
