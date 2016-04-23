@@ -292,7 +292,7 @@ router.post('/blogpost_remove', function (req, res, next) {
 		return models.Blogposts.destroy({
 			where: {
 				id: req.body.blog_id,
-				user_id: req.user.id
+				userid: req.user.id
 			}
 		}).then(post =>{
 			req.flash('info', 'blogpost removed')
