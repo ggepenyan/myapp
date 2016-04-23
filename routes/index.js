@@ -19,6 +19,7 @@ router.get('/', function (req, res, next) {
 				id: req.user.id
 			}
 		}).then(user => {
+			console.log(req.user)
 			res.render('index',  {
 				user: user
 			})
@@ -62,7 +63,8 @@ router.post("/register", function (req, res, next) {
 						firstname: req.body.firstname,
 						lastname: req.body.lastname,
 						username: req.body.username,
-						password: req.body.password
+						password: req.body.password,
+						picture: "/images/profile.png"
 					}).then(user => {
 						res.redirect('/')
 					})
@@ -87,7 +89,7 @@ router.post('/upload', function (req, res, next) {
 		var form = new multiparty.Form()
 		
 		form.parse(req, function (error, fields, files) {
-			console.log(files)
+			// console.log(files)
 			if (files.image) {
 				if (files.image[0].originalFilename !== '' && files.image[0].size !== 0) {
 					var image = files.image[0]
@@ -101,14 +103,25 @@ router.post('/upload', function (req, res, next) {
 							
 							new_path = './public/images/' + Math.random() + '-' + req.user.username + ext
 
+							path_for_db = new_path.slice(8, new_path.length)
+
 							return rename(path_full, new_path).then(result => {
 								return models.Users.update(
-									{picture: new_path},
+									{picture: path_for_db},
 									{where: {
 										id: req.user.id
 									}
-								}).then(result => {
-									res.redirect('/')
+								}).then(user => {
+									console.log(user)
+									return models.Blogposts.update(
+										{userimage: path_for_db},
+										{where: {
+											username: req.user.username
+										}
+									}).then(blog_user =>{
+										console.log("upload success")
+										res.redirect('/')
+									})
 								})
 							})
 						})
@@ -215,6 +228,7 @@ router.get('/blogpost', function (req, res, next) {
 		req.flash('error', 'please login at first')
 		res.redirect('/')
 	}else {
+		
 		return models.Blogposts.findAll({
 			where:{
 				password: null
@@ -236,19 +250,25 @@ router.post('/blogpost', function (req, res, next) {
 		req.flash('error', 'please login at first')
 		res.redirect('/')
 	}else {
-		if(user_dates.firstname) {
-			if (user_dates.firstname !== '') {
-				return models.Blogposts.create({
-					firstname: req.user.firstname,
-					lastname: req.user.lastname,
-					username: req.user.username,
-					userid: req.user.id,
-					content: req.body.text
+		if(req.body.text) {
+			if (req.body.text !== '') {
+				return models.Users.findOne({
+					where: {
+						id: req.user.id
+					}
+				}).then(user => {
+					return models.Blogposts.create({
+						firstname: user.firstname,
+						lastname: user.lastname,
+						username: user.username,
+						userimage: user.picture,
+						userid: user.id,
+						content: req.body.text
 
-				}).then(blogpost => {
-					req.flash('info', 'blogpost added successfully')
-					res.redirect("blogpost")
-
+					}).then(blogpost => {
+						req.flash('info', 'blogpost added successfully')
+						res.redirect("blogpost")					
+					})
 				}).catch(error => {
 					next(error)
 				})

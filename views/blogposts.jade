@@ -1,27 +1,38 @@
 extends layout
 
 block content
-	#blogpost
-		if blogpost
+	if blogpost
+		if !guest
 			h3 add new blogpost
 			form(method="post" action="/blogpost")
 				textarea(name="text")
 				button add
-			- blogpost.map(function (post) {
-				span(class="k")= post.firstname +" "+ post.lastname + " writes "
+		else if guest
+			h3 User's blogposts
+		- blogpost.map(function (post) {
+			img(src="#{post.userimage}" width="50" height="50")
+			if !guest
+				a(href="/users/#{post.userid}" class="k")= post.firstname +" "+ post.lastname +" "
+			else if guest
+				span= post.firstname +" "+ post.lastname +" "
+			span writes
+			if !guest
 				if post.userid == user.id && post.username == user.username
 					form(method="post" action="/blogpost_remove" class="remove_form")
 						- var length = post.id.toString().length
 						input(type="hidden" name="blog_id" value="#{post.id}" readonly="readonly" size="#{length}" class="blog_id")
 						button(class="btn btn-default btn-xs") 
 							span(class='glyphicon glyphicon-remove')
-				p= post.content
-				hr
-			- })
+			p= post.content asd
+			hr
+		- })
+		if !guest
 			a(href="/", class="sign-out") account page ←
-		else
-			h3 add new blogpost
-			form(action="/blogpost" method="post")
-				textarea(name="text")
-				button add
-			a(href="/", class="sign-out") account page ←
+		else if guest
+			a(href="/", class="sign-out") back ←
+	else
+		h3 add new blogpost
+		form(action="/blogpost" method="post")
+			textarea(name="text")
+			button add
+		a(href="/", class="sign-out") account page ←

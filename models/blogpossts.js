@@ -12,6 +12,9 @@ module.exports = function(sequelize, DataTypes) {
 		userid:{
 			type: DataTypes.INTEGER
 		},
+		userimage:{
+			type: DataTypes.STRING(1000)
+		},
 		content:{
 			type: DataTypes.STRING(500)
 		},
