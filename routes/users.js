@@ -9,31 +9,41 @@ router.get('/', function(req, res, next) {
 })
 
 router.get('/:user_id', function (req, res, next) {
-	var user_id = parseInt(req.params.user_id, 10) || 0
-	if (user_id != 0) {
-		
-		return models.Users.findOne({
-			where:{id: user_id}
-		}).then(user => {
-			return models.Blogposts.findAll({
-				where:{userid: user_id}
-			}).then(blogpost => {
-				if(user != undefined) {
+	if (req.user) {
 
-					res.render('user', {
-						user: user,
-						blogpost: blogpost,
-						guest: true
-					})
+		var user_id = parseInt(req.params.user_id, 10) || 0
+		if (user_id != 0) {
+
+			return models.Users.findOne({
+				where:{id: user_id}
+			}).then(user => {
+				if(user != undefined) {
+					if (user.id == req.user.id) {
+						return res.redirect('/')
+					} else {
+						return models.Blogposts.findAll({
+							where:{userid: user_id}
+						}).then(blogpost => {
+							res.render('user', {
+								user: user,
+								blogpost: blogpost,
+								guest: true
+							})
+						})
+					}
+				} else {
+					req.flash('error', 'Invalid user')
+					res.redirect('/')
 				}
-				else
-					res.send('Invalid user')
+			}).catch(error => {
+				next(error)
 			})
-		}).catch(error => {
-			next(error)
-		})
+		} else {
+			req.flash('error', 'uncorrect!')
+			res.redirect('/')
+		}
 	} else {
-		req.flash('error', 'uncorrect!')
+		req.flash('error', 'login please')
 		res.redirect('/')
 	}
 })

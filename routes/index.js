@@ -19,9 +19,16 @@ router.get('/', function (req, res, next) {
 				id: req.user.id
 			}
 		}).then(user => {
-			console.log(req.user)
-			res.render('index',  {
-				user: user
+			return models.Blogposts.findAll({
+				where:{
+					userid: user.id
+				}
+			}).then(blogpost =>{
+				res.render('user',  {
+					user: user,
+					blogpost: blogpost,
+					isuser: true
+				})	
 			})
 		}).catch(error => {
 			next(error)
@@ -89,7 +96,6 @@ router.post('/upload', function (req, res, next) {
 		var form = new multiparty.Form()
 		
 		form.parse(req, function (error, fields, files) {
-			// console.log(files)
 			if (files.image) {
 				if (files.image[0].originalFilename !== '' && files.image[0].size !== 0) {
 					var image = files.image[0]
