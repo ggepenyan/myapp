@@ -24,11 +24,19 @@ router.get('/', function (req, res, next) {
 					userid: user.id
 				}
 			}).then(blogpost =>{
-				res.render('user',  {
-					user: user,
-					blogpost: blogpost,
-					isuser: true
-				})	
+				return models.Comments.findAll({
+					where: {
+						password: null
+					}
+				}).then(comment => {
+
+					res.render('user',  {
+						user: user,
+						blogpost: blogpost,
+						comment: comment,
+						isuser: true
+					})
+				})
 			})
 		}).catch(error => {
 			next(error)
@@ -234,17 +242,24 @@ router.get('/blogpost', function (req, res, next) {
 		req.flash('error', 'please login at first')
 		res.redirect('/')
 	}else {
-		
+
 		return models.Blogposts.findAll({
 			where:{
 				password: null
 			}
 		}).then(blogpost => {
+			return models.Comments.findAll({
+				where:{
+					password: null
+				}
+			}).then(comment => {
 				res.render("blogposts",{
 					blogpost: blogpost,
+					comment: comment,
 					user: req.user
 				})
-		
+			})
+
 		}).catch(error => {
 			next(error)
 		})
@@ -290,6 +305,42 @@ router.post('/blogpost', function (req, res, next) {
 	} 
 })
 
+router.post('/comment', function (req, res, next) {
+	if (!req.user) {
+		req.flash('error', 'please login at first')
+	} else {
+
+		if(req.body.comment_cont) {
+			if (req.body.comment_cont !== '') {
+				return models.Users.findOne({
+					where:{
+						id: req.user.id
+					}
+				}).then(user => {
+					return models.Comments.create({
+						blogpostid: req.body.blog_id,
+						userid: user.id,
+						firstname: user.firstname,
+						lastname: user.lastname,
+						userimage: user.picture,
+						content: req.body.comment_cont
+					}).then(comment => {
+						res.redirect('/blogpost')
+					})
+				}).catch(error => {
+					next(error)
+				})
+			} else {
+				req.flash('error', 'you must enter comment')
+				res.redirect('/blogpost')
+			}
+		} else{
+			req.flash('error', 'you must enter comment')
+			res.redirect('/blogpost')
+		}
+	}
+})
+
 router.post('/blogpost_remove', function (req, res, next) {
 	if (!req.user) {
 		req.flash('error', 'please login at first')
@@ -301,8 +352,16 @@ router.post('/blogpost_remove', function (req, res, next) {
 				userid: req.user.id
 			}
 		}).then(post =>{
-			req.flash('info', 'blogpost removed')
-			res.redirect('/blogpost')
+			return models.Comments.destroy({
+				where: {
+					blogpostid: req.body.blog_id,
+					// userid: req.user.id
+				}
+			}).then(comment => {
+				
+				req.flash('info', 'blogpost removed')
+				res.redirect('/blogpost')
+			})
 		}).catch(error =>{
 			next(error)
 		})
