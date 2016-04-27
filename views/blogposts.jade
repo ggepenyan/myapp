@@ -21,7 +21,7 @@ block content
 			- blogpost.map(function (post) {
 				img(src="#{post.userimage}" width="50" height="50")
 				if !guest
-					a(href="/users/#{post.userid}" class="k")= post.firstname +" "+ post.lastname + " "
+					a(href="/authors/#{post.userid}" class="k")= post.firstname +" "+ post.lastname + " "
 				else if guest || isuser
 					span= post.firstname +" "+ post.lastname +" "
 				span writes
@@ -32,7 +32,7 @@ block content
 							input(type="hidden" name="blog_id" value="#{post.id}" readonly="readonly" size="#{length}" class="blog_id")
 							button(class="btn btn-default btn-xs") 
 								span(class='glyphicon glyphicon-remove')
-				p= post.content
+				p!= post.content
 				if comment
 					if comment.length !== 0
 						- comment.map(function (post_comment) {
