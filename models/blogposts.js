@@ -16,7 +16,7 @@ module.exports = function(sequelize, DataTypes) {
 			type: DataTypes.STRING(1000)
 		},
 		content:{
-			type: DataTypes.STRING(500)
+			type: DataTypes.STRING(1000)
 		},
 		password:{
 			type: DataTypes.STRING(500)

@@ -13,7 +13,10 @@ var express = require('express'),
 	Promise = require("bluebird"),
 	readFile = Promise.promisify(require("fs").readFile),
 	writeFile = Promise.promisify(require("fs").writeFile),
-	rename = Promise.promisify(require("fs").rename);
+	rename = Promise.promisify(require("fs").rename),
+	
+	request = require('request'),
+	cheerio = require('cheerio');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
@@ -280,6 +283,41 @@ router.get('/blogpost', function (req, res, next) {
 				password: null
 			}
 		}).then(comment => {
+			var url = blogpost.map(function (post) {
+				var str = post.content.search('<a href')
+				
+				if (str == -1) {
+					return
+				}
+				var link_start = str + 9
+				var link_end = post.content.search('" target')
+				var link = post.content.substring(link_start, link_end)
+				// console.log(link)
+				meta_og = []
+				request(link, function (error, response, html) {
+					if (error) {
+						return next(error)
+					}
+					
+					var $ = cheerio.load(html)
+
+					// meta_og = []
+
+					for (var i = $('head meta[property^=og]').length - 1; i >= 0; i--) {
+						elem = i + ''
+
+						var meta_attribs = $('head meta[property^=og]')[elem].attribs
+
+						meta_og.push([meta_attribs.property, meta_attribs.content])
+					}
+					console.log(meta_og)
+					// og.dates = meta_og
+				})
+				console.log(meta_og)
+			})
+			
+			// console.log(url)
+			
 			res.render("blogposts",{
 				blogpost: blogpost,
 				comment: comment,
@@ -306,19 +344,24 @@ router.post('/blogpost', function (req, res, next) {
 		req.flash('error', 'you must enter text')
 		return res.redirect('/blogpost')
 	}
+
+	var content = req.body.text;
+	var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
+	content = content.replace(exp,"<a href=\"$1\" target=\"_blank\">visit page</a>"); 
+
 	return models.Users.findOne({
 		where: {
 			id: req.user.id
 		}
 	}).then(user => {
-		console.log(entities.encode(req.body.text))
+		console.log(content)
 		return models.Blogposts.create({
 			firstname: user.firstname,
 			lastname: user.lastname,
 			username: user.username,
 			userimage: user.picture,
 			userid: user.id,
-			content: req.body.text
+			content: content
 
 		}).then(blogpost => {
 			req.flash('info', 'blogpost added successfully')

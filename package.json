@@ -27,6 +27,8 @@
     "path": "^0.12.7",
     "redis": "^2.5.3",
     "sequelize": "^3.19.3",
-    "serve-favicon": "~2.3.0"
+    "serve-favicon": "~2.3.0",
+    "cheerio": "^0.20.0",
+    "request": "^2.72.0"
   }
 }
