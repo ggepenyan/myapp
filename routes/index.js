@@ -15,7 +15,7 @@ var express = require('express'),
 	writeFile = Promise.promisify(require("fs").writeFile),
 	rename = Promise.promisify(require("fs").rename),
 	
-	request = require('request'),
+	request = require('request-promise'),
 	cheerio = require('cheerio');
 
 /* GET home page. */
@@ -283,7 +283,9 @@ router.get('/blogpost', function (req, res, next) {
 				password: null
 			}
 		}).then(comment => {
-			var url = blogpost.map(function (post) {
+
+			var url_arr = blogpost.map(function (post) {
+
 				var str = post.content.search('<a href')
 				
 				if (str == -1) {
@@ -293,36 +295,49 @@ router.get('/blogpost', function (req, res, next) {
 				var link_end = post.content.search('" target')
 				var link = post.content.substring(link_start, link_end)
 				// console.log(link)
-				meta_og = []
-				request(link, function (error, response, html) {
-					if (error) {
-						return next(error)
+				return link
+			})
+			var urls = url_arr.filter(function (elem) {
+				return typeof elem === 'string'
+			})
+			// console.log(urls)
+			var meta_og = []
+			result = urls.map(function (url) {
+				// console.log("url is ---" + url)
+				var options = {
+					uri: url,
+					transform: function (body) {
+						return cheerio.load(body);
 					}
-					
-					var $ = cheerio.load(html)
-
-					// meta_og = []
+				}
+				return request(options).then($ => {
 
 					for (var i = $('head meta[property^=og]').length - 1; i >= 0; i--) {
-						elem = i + ''
+						var elem = i + ''
 
 						var meta_attribs = $('head meta[property^=og]')[elem].attribs
 
 						meta_og.push([meta_attribs.property, meta_attribs.content])
 					}
-					console.log(meta_og)
-					// og.dates = meta_og
 				})
-				console.log(meta_og)
+				// .then(result => {
+				// 	console.log(meta_og)	
+				// })
+					// console.log(meta_og)
+					// res.render('meta',{
+					// 	meta_dates: meta_og
+					// })
+				// .catch(function (error) {
+
+				// 	next(error)
+				// })
 			})
-			
-			// console.log(url)
-			
-			res.render("blogposts",{
-				blogpost: blogpost,
-				comment: comment,
-				user: req.user
-			})
+			console.log(meta_og)
+			// res.render("blogposts",{
+			// 	blogpost: blogpost,
+			// 	comment: comment,
+			// 	user: req.user
+			// })
 		})
 
 	}).catch(error => {
