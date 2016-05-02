@@ -17,7 +17,7 @@ block content
 		if blogpost_length == 0
 			p you have not blogposts yet
 		else
-			- blogpost.reverse()
+			- var num = 0
 			- blogpost.map(function (post) {
 				img(src="#{post.userimage}" width="50" height="50")
 				if !guest
@@ -25,30 +25,65 @@ block content
 				else if guest || isuser
 					span= post.firstname +" "+ post.lastname +" "
 				span writes
-				if !guest
-					if post.userid == user.id && post.username == user.username
+				- if (!guest) {
+					- if (post.userid == user.id && post.username == user.username){
 						form(method="post" action="/blogpost_remove" class="remove_form")
 							- var length = post.id.toString().length
 							input(type="hidden" name="blog_id" value="#{post.id}" readonly="readonly" size="#{length}" class="blog_id")
 							button(class="btn btn-default btn-xs") 
 								span(class='glyphicon glyphicon-remove')
+					- }
+				- }
 				p!= post.content
-				if comment
-					if comment.length !== 0
+				- if (meta_dates){
+					- if (meta_dates[num]){
+						each elem, i in meta_dates[num]
+							- var image = elem[0].search('og:image')
+							- var image_info = elem[0].search('og:image:')
+							- if (image_info == -1 && image !== -1){
+								p(style="font-weight:bolder")= elem[0]
+								img(src="#{elem[1]}" height="100")
+							- }
+							- var title = elem[0].search('title')
+							- if (title !== -1){
+								br
+								p(style="font-weight:bolder")= elem[0]
+								span= elem[1]
+							- }
+							- var descr = elem[0].search('description')
+							- if (descr !== -1){
+								br
+								p(style="font-weight:bolder")= elem[0]
+								span= elem[1]
+							- }
+							- var name = elem[0].search('site_name')
+							- if (name !== -1){
+								br
+								p(style="font-weight:bolder")= elem[0]
+								span= elem[1]
+							- }
+					- }
+				- }
+				- if (comment){
+					- if (comment.length !== 0){
 						- comment.map(function (post_comment) {
-							if post_comment.blogpostid == post.id
+							- if (post_comment.blogpostid == post.id){
 								div(class="comment")
 									img(src="#{post_comment.userimage}" width="25" height="25")
 									a(href="/users/#{post_comment.userid}" class="k")= post_comment.firstname +" "+ post_comment.lastname + " "
 									span &#39;s comment
 									br
 									p= post_comment.content
+							- }
 						- })
+					- }
+				- }
 				form(method="post" action="comment" class="form-inline")
 					input(type="text" name="comment_cont" placeholder="add comment" class="form-control input_width")
 					input(type="hidden" name="blog_id" value="#{post.id}" readonly="readonly" size="#{length}" class="blog_id")
 					button(class="btn btn-primary btn-sm comment_btn") comment
 				hr
+				- num++
 			- })
 		if !guest && !isuser
 			a(href="/", class="sign-out") account page ←

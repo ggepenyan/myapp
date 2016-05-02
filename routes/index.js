@@ -18,7 +18,7 @@ var express = require('express'),
 	request = require('request-promise'),
 	cheerio = require('cheerio');
 
-/* GET home page. */
+/* GET home page.*/
 router.get('/', function (req, res, next) {
 	if(!req.user) {
 		return res.render('index')
@@ -285,7 +285,6 @@ router.get('/blogpost', function (req, res, next) {
 		}).then(comment => {
 
 			var url_arr = blogpost.map(function (post) {
-
 				var str = post.content.search('<a href')
 				
 				if (str == -1) {
@@ -294,50 +293,39 @@ router.get('/blogpost', function (req, res, next) {
 				var link_start = str + 9
 				var link_end = post.content.search('" target')
 				var link = post.content.substring(link_start, link_end)
-				// console.log(link)
 				return link
 			})
+			console.log(url_arr)
 			var urls = url_arr.filter(function (elem) {
 				return typeof elem === 'string'
 			})
-			// console.log(urls)
-			var meta_og = []
-			result = urls.map(function (url) {
-				// console.log("url is ---" + url)
+			var grabber = function (url) {
+				var ogs = []
 				var options = {
 					uri: url,
 					transform: function (body) {
-						return cheerio.load(body);
+						return cheerio.load(body)
 					}
 				}
 				return request(options).then($ => {
-
 					for (var i = $('head meta[property^=og]').length - 1; i >= 0; i--) {
 						var elem = i + ''
-
 						var meta_attribs = $('head meta[property^=og]')[elem].attribs
-
-						meta_og.push([meta_attribs.property, meta_attribs.content])
+						ogs.push([meta_attribs.property, meta_attribs.content])
 					}
+					return ogs
 				})
-				// .then(result => {
-				// 	console.log(meta_og)	
-				// })
-					// console.log(meta_og)
-					// res.render('meta',{
-					// 	meta_dates: meta_og
-					// })
-				// .catch(function (error) {
+			}
 
-				// 	next(error)
-				// })
-			})
-			console.log(meta_og)
-			// res.render("blogposts",{
-			// 	blogpost: blogpost,
-			// 	comment: comment,
-			// 	user: req.user
-			// })
+			Promise.map(urls, grabber).then(result => {
+				console.log(result)
+				res.render("blogposts",{
+					blogpost: blogpost,
+					comment: comment,
+					meta_dates: result,
+					user: req.user
+				})
+			})			
 		})
 
 	}).catch(error => {
@@ -360,9 +348,9 @@ router.post('/blogpost', function (req, res, next) {
 		return res.redirect('/blogpost')
 	}
 
-	var content = req.body.text;
-	var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
-	content = content.replace(exp,"<a href=\"$1\" target=\"_blank\">visit page</a>"); 
+	var content = req.body.text
+	var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig
+	content = content.replace(exp,"<a href=\"$1\" target=\"_blank\">visit page</a>")
 
 	return models.Users.findOne({
 		where: {
